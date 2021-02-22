@@ -1,0 +1,172 @@
+---
+- name: Get the project id for project named {{ project_template['name'] }}
+  import_tasks: gns3-getprojectid.yml
+  tags: import_gns3_getprojectid
+
+- name: Get a list of nodes already created in project named {{ project_template['name'] }}
+  import_tasks: gns3-getnodes.yml
+  tags: import_gns3_getnodes
+
+# Templates are nicer and we can embed conditional logic in it to avoid the above mess of handling whether a link involves a device of ethernet_switch type
+# This isn't possible now as we need to be able to loop through tasks in separate yml file and there is a bug with Ansible.
+# https://github.com/ansible/ansible/issues/65904
+# - name: Populate template with variables
+#   set_fact:
+#     payload_links_create: "{{ lookup('template', 'links.j2') }}"
+
+# - name: Create links between nodes
+#   uri:
+#     url: "http://{{ hostvars['master'].ip }}:{{ hostvars['master'].port }}/v2/projects/{{ hostvars['master'].project_id }}/links"
+#     method: POST
+#     body_format: json
+#     status_code: [201, 400]
+#     headers:
+#       Content-Type: application/json
+#     force_basic_auth: yes
+#     url_username: "{{ project_template['username'] }}"
+#     url_password: "{{ project_template['password'] }}"
+#     body: "{{ payload_links_create }}"
+#   with_items: "{{ links }}"
+#   loop_control:
+#     loop_var: linkitem
+#   delegate_to: localhost
+#   run_once: true
+#   ignore_errors: true
+#   tags: links_create
+
+- name: Create links between nodes for node_type != ethernet_switch
+  uri:
+    url: "http://{{ hostvars['master'].ip }}:{{ hostvars['master'].port }}/v2/projects/{{ hostvars['master'].project_id }}/links"
+    method: POST
+    body_format: json
+    status_code: [201, 400]
+    headers:
+      Content-Type: application/json
+    force_basic_auth: yes
+    url_username: "{{ project_template['username'] }}"
+    url_password: "{{ project_template['password'] }}"
+    body: |
+      {
+        "nodes": [{
+          "adapter_number": {{ linkitem['a-end']['port'] | regex_replace('(eth|Ethernet|Gi0/)', '') | int }},
+          "node_id": "{{ result_gns3_nodes_get | json_query('json[?name==`' + linkitem['a-end']['device'] + '`].node_id') | join() }}",
+          "port_number": 0
+        }, {
+          "adapter_number": {{ linkitem['b-end']['port'] | regex_replace('(eth|Ethernet|Gi0/)', '') | int }},
+          "node_id": "{{ result_gns3_nodes_get | json_query('json[?name==`' + linkitem['b-end']['device'] + '`].node_id') | join() }}",
+          "port_number": 0
+        }]
+      }
+  when:
+    - result_gns3_nodes_get | json_query('json[?name==`' + linkitem['a-end']['device'] + '`].node_type') | join() != 'ethernet_switch'
+    - result_gns3_nodes_get | json_query('json[?name==`' + linkitem['b-end']['device'] + '`].node_type') | join() != 'ethernet_switch'
+  with_items: "{{ links }}"
+  loop_control:
+    loop_var: linkitem
+  delegate_to: localhost
+  run_once: true
+  ignore_errors: true
+  tags: links_create_non_ethernet_switch
+
+- name: Create links between nodes when first node_type == ethernet_switch and second node_type != ethernet_switch
+  uri:
+    url: "http://{{ hostvars['master'].ip }}:{{ hostvars['master'].port }}/v2/projects/{{ hostvars['master'].project_id }}/links"
+    method: POST
+    body_format: json
+    status_code: [201, 400]
+    headers:
+      Content-Type: application/json
+    force_basic_auth: yes
+    url_username: "{{ project_template['username'] }}"
+    url_password: "{{ project_template['password'] }}"
+    body: |
+      {
+        "nodes": [{
+          "adapter_number": 0,
+          "node_id": "{{ result_gns3_nodes_get | json_query('json[?name==`' + linkitem['a-end']['device'] + '`].node_id') | join() }}",
+          "port_number": {{ linkitem['a-end']['port'] | regex_replace('(eth|Ethernet|Gi0/)', '') | int }}
+        }, {
+          "adapter_number": {{ linkitem['b-end']['port'] | regex_replace('(eth|Ethernet|Gi0/)', '') | int }},
+          "node_id": "{{ result_gns3_nodes_get | json_query('json[?name==`' + linkitem['b-end']['device'] + '`].node_id') | join() }}",
+          "port_number": 0
+        }]
+      }
+  when:
+    - result_gns3_nodes_get | json_query('json[?name==`' + linkitem['a-end']['device'] + '`].node_type') | join() == 'ethernet_switch'
+    - result_gns3_nodes_get | json_query('json[?name==`' + linkitem['b-end']['device'] + '`].node_type') | join() != 'ethernet_switch'
+  with_items: "{{ links }}"
+  loop_control:
+    loop_var: linkitem
+  delegate_to: localhost
+  run_once: true
+  ignore_errors: true
+  tags: links_create_ethernet_switch_on_first_node
+
+- name: Create links between nodes when first node_type != ethernet_switch and second node_type == ethernet_switch
+  uri:
+    url: "http://{{ hostvars['master'].ip }}:{{ hostvars['master'].port }}/v2/projects/{{ hostvars['master'].project_id }}/links"
+    method: POST
+    body_format: json
+    status_code: [201, 400]
+    headers:
+      Content-Type: application/json
+    force_basic_auth: yes
+    url_username: "{{ project_template['username'] }}"
+    url_password: "{{ project_template['password'] }}"
+    body: |
+      {
+        "nodes": [{
+          "adapter_number": {{ linkitem['a-end']['port'] | regex_replace('(eth|Ethernet|Gi0/)', '') | int }},
+          "node_id": "{{ result_gns3_nodes_get | json_query('json[?name==`' + linkitem['a-end']['device'] + '`].node_id') | join() }}",
+          "port_number": 0
+        }, {
+          "adapter_number": 0,
+          "node_id": "{{ result_gns3_nodes_get | json_query('json[?name==`' + linkitem['b-end']['device'] + '`].node_id') | join() }}",
+          "port_number": {{ linkitem['b-end']['port'] | regex_replace('(eth|Ethernet|Gi0/)', '') | int }}
+        }]
+      }
+  when:
+    - result_gns3_nodes_get | json_query('json[?name==`' + linkitem['a-end']['device'] + '`].node_type') | join() != 'ethernet_switch'
+    - result_gns3_nodes_get | json_query('json[?name==`' + linkitem['b-end']['device'] + '`].node_type') | join() == 'ethernet_switch'
+  with_items: "{{ links }}"
+  loop_control:
+    loop_var: linkitem
+  delegate_to: localhost
+  run_once: true
+  ignore_errors: true
+  tags: links_create_ethernet_switch_on_second_node
+
+- name: Create links between nodes when first node_type == ethernet_switch and second node_type == ethernet_switch
+  uri:
+    url: "http://{{ hostvars['master'].ip }}:{{ hostvars['master'].port }}/v2/projects/{{ hostvars['master'].project_id }}/links"
+    method: POST
+    body_format: json
+    status_code: [201, 400]
+    headers:
+      Content-Type: application/json
+    force_basic_auth: yes
+    url_username: "{{ project_template['username'] }}"
+    url_password: "{{ project_template['password'] }}"
+    body: |
+      {
+        "nodes": [{
+          "adapter_number": 0,
+          "node_id": "{{ result_gns3_nodes_get | json_query('json[?name==`' + linkitem['a-end']['device'] + '`].node_id') | join() }}",
+          "port_number": {{ linkitem['a-end']['port'] | regex_replace('(eth|Ethernet|Gi0/)', '') | int }}
+        }, {
+          "adapter_number": 0,
+          "node_id": "{{ result_gns3_nodes_get | json_query('json[?name==`' + linkitem['b-end']['device'] + '`].node_id') | join() }}",
+          "port_number": {{ linkitem['b-end']['port'] | regex_replace('(eth|Ethernet|Gi0/)', '') | int }}
+        }]
+      }
+  when:
+    - result_gns3_nodes_get | json_query('json[?name==`' + linkitem['a-end']['device'] + '`].node_type') | join() == 'ethernet_switch'
+    - result_gns3_nodes_get | json_query('json[?name==`' + linkitem['b-end']['device'] + '`].node_type') | join() == 'ethernet_switch'
+  with_items: "{{ links }}"
+  loop_control:
+    loop_var: linkitem
+  delegate_to: localhost
+  run_once: true
+  ignore_errors: true
+  tags: links_create_ethernet_switch_on_both_nodes
+...

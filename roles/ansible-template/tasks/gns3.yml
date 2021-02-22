@@ -1,0 +1,213 @@
+---
+- name: Create GNS3 project1
+  block:
+    - name: Create GNS3 project
+      uri:
+        url: "http://{{ ip }}:{{ port }}/v2/projects"
+        method: POST
+        body_format: json
+        status_code: [201, 409]
+        headers:
+          Content-Type: application/json
+        force_basic_auth: yes
+        url_username: "{{ project_template['username'] }}"
+        url_password: "{{ project_template['password'] }}"
+        body:
+          auto_close: false
+          drawing_grid_size: 25
+          grid_size: 75
+          name: "{{ project_template['name'] }}"
+          path: "{{ project_template['path'] }}"
+          scene_height: 1000
+          scene_width: 2000
+          show_grid: false
+          show_interface_labels: true
+          show_layers: false
+          snap_to_grid: false
+      register: result_gns3_project_create
+      ignore_errors: true
+
+    - name: Print create GNS3 project results
+      debug:
+        var: result_gns3_project_create
+
+  delegate_to: localhost
+  run_once: true
+  when:
+    - inventory_hostname in groups['gns3']
+    - inventory_hostname == 'master'
+  tags: gns3_project_create
+
+- name: Open GNS3 project
+  block:
+    - name: Get list of GNS3 projects
+      uri:
+        url: "http://{{ ip }}:{{ port }}/v2/projects"
+        method: GET
+        body_format: json
+        status_code: [200]
+        headers:
+          Content-Type: application/json
+        force_basic_auth: yes
+        url_username: "{{ project_template['username'] }}"
+        url_password: "{{ project_template['password'] }}"
+      register: result_gns3_projects_get
+      ignore_errors: true
+
+    # - name: Print get GNS3 project list result
+    #   debug:
+    #     var: result_gns3_projects_get
+    
+    - name: Extract project id for project named {{ project_template['name'] }}
+      set_fact:
+        project_id: "{{ result_gns3_projects_get | json_query('json[?name==`ansible-template`].project_id') | join() }}"
+
+    - name: Close project named {{ project_template['name'] }}
+      uri:
+        url: "http://{{ ip }}:{{ port }}/v2/projects/{{ project_id }}/close"
+        method: POST
+        body_format: json
+        status_code: [204, 404]
+        headers:
+          Content-Type: application/json
+        force_basic_auth: yes
+        url_username: "{{ project_template['username'] }}"
+        url_password: "{{ project_template['password'] }}"
+      register: result_gns3_project_open
+      ignore_errors: true
+
+    - name: Give the project a moment to close
+      pause:
+        seconds: 5
+
+    - name: Open GNS3 project named {{ project_template['name'] }}
+      uri:
+        url: "http://{{ ip }}:{{ port }}/v2/projects/{{ project_id }}/open"
+        method: POST
+        body_format: json
+        status_code: [201, 404]
+        headers:
+          Content-Type: application/json
+        force_basic_auth: yes
+        url_username: "{{ project_template['username'] }}"
+        url_password: "{{ project_template['password'] }}"
+      register: result_gns3_project_open
+      ignore_errors: true
+
+    - name: Print reuslt of opening GNS3 project named {{ project_template['name'] }}
+      debug:
+        var: result_gns3_project_open
+
+  delegate_to: localhost
+  run_once: true
+  when:
+    - inventory_hostname in groups['gns3']
+    - inventory_hostname == 'master'
+  tags: gns3_project_open
+
+- name: Get template ids
+  block:
+    - name: Get list of templates
+      uri:
+        url: "http://{{ ip }}:{{ port }}/v2/templates"
+        method: GET
+        body_format: json
+        status_code: [200]
+        headers:
+          Content-Type: application/json
+        force_basic_auth: yes
+        url_username: "{{ project_template['username'] }}"
+        url_password: "{{ project_template['password'] }}"
+      register: result_gns3_templates_get
+      ignore_errors: true
+
+    # - name: Print result of getting GNS3 template list
+    #   debug:
+    #     var: result_gns3_templates_get
+
+  delegate_to: localhost
+  run_once: true
+  when:
+    - inventory_hostname in groups['gns3']
+    - inventory_hostname == 'master'
+  tags: gns3_get_templates
+
+- name: Create cloud node for connecting to physical world
+  block:
+    - name: Create cloud node for connecting to physical world
+      uri:
+        url: "http://{{ hostvars['master'].ip }}:{{ hostvars['master'].port }}/v2/projects/{{ hostvars['master'].project_id }}/nodes"
+        method: POST
+        body_format: json
+        status_code: [201, 400]
+        headers:
+          Content-Type: application/json
+        force_basic_auth: yes
+        url_username: "{{ project_template['username'] }}"
+        url_password: "{{ project_template['password'] }}"
+        body: |
+          {
+            "compute_id": "local",
+            "name": "{{ inventory_hostname }}",
+            "node_type": "{{ node_type }}",
+            "properties": {{ properties | to_nice_json }},
+            "template_id": "{{ hostvars['master'].result_gns3_templates_get | json_query('json[?name==`' + template + '`].template_id') | join() }}",
+            "symbol": "{{ symbol }}",
+            "x": {{ position['x'] }},
+            "y": {{ position['y'] }},
+            "z": {{ position['z'] }}
+          }
+      register: result_gns3_node_create
+      ignore_errors: true
+
+    - name: Print result of creating cloud node for connecting to physical world
+      debug:
+        var: result_gns3_node_create
+  delegate_to: localhost
+  when: >
+    inventory_hostname == "cloud"
+  tags: gns3_create_cloud_nodes
+
+- name: Create device nodes from template
+  block:
+    - name: Create device nodes from template
+      uri:
+        url: "http://{{ hostvars['master'].ip }}:{{ hostvars['master'].port }}/v2/projects/{{ hostvars['master'].project_id }}/nodes"
+        method: POST
+        body_format: json
+        status_code: [201, 400]
+        headers:
+          Content-Type: application/json
+        force_basic_auth: yes
+        url_username: "{{ project_template['username'] }}"
+        url_password: "{{ project_template['password'] }}"
+        body: |
+          {
+            "compute_id": "local",
+            "console": {{ console['port'] | int }},
+            "console_auto_start": true,
+            "console_host": "{{ console['ip'] }}",
+            "console_type": "telnet",
+            "name": "{{ inventory_hostname }}",
+            "node_type": "{{ node_type }}",
+            "port_name_format": "{{ port_name_format }}",
+            "properties": {{ properties | to_nice_json }},
+            "template_id": "{{ hostvars['master'].result_gns3_templates_get | json_query('json[?name==`' + template + '`].template_id') | join() }}",
+            "symbol": "{{ symbol }}",
+            "x": {{ position['x'] }},
+            "y": {{ position['y'] }},
+            "z": {{ position['z'] }}
+          }
+      register: result_gns3_node_create
+      ignore_errors: true
+
+    - name: Print create device nodes result
+      debug:
+        var: result_gns3_node_create
+  delegate_to: localhost
+  when: >
+    inventory_hostname in lookup('inventory_hostnames', 'rack1000') or
+    inventory_hostname == "switch" or
+    inventory_hostname == "firsthoprouter"
+  tags: gns3_create_device_nodes
+...

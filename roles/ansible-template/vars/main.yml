@@ -1,0 +1,39 @@
+---
+links:
+- a-end:
+    device: cloud
+    port: eth0
+  b-end:
+    device: switch
+    port: Ethernet0
+- a-end:
+    device: switch
+    port: Ethernet1
+  b-end:
+    device: firsthoprouter
+    port: Gi0/0
+- a-end:
+    device: firsthoprouter
+    port: Gi0/1
+  b-end:
+    device: DC1R1000MS1
+    port: Gi0/0
+- a-end:
+    device: firsthoprouter
+    port: Gi0/2
+  b-end:
+    device: DC1R1000MS2
+    port: Gi0/0
+- a-end:
+    device: DC1R1000MS1
+    port: Gi0/1
+  b-end:
+    device: DC1R1000DS1
+    port: Gi0/0
+- a-end:
+    device: DC1R1000MS2
+    port: Gi0/1
+  b-end:
+    device: DC1R1000DS2
+    port: Gi0/0
+...

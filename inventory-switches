@@ -1,0 +1,282 @@
+all:
+  vars:
+    project_template:
+      name: ansible-template
+      path: /opt/gns3/projects/ansible-template
+      username: gns3
+      password: gns3
+      devices:
+        mgmt-spine-switches:
+          template: Cisco IOSvL2 15.2(20170321:233949)
+        data-spine-switches:
+          template: Cisco IOSvL2 15.2(20170321:233949)
+        mgmt-leaf-switches:
+          template: Cisco IOSvL2 15.2(20170321:233949)
+        data-leaf-switches:
+          template: Cisco IOSvL2 15.2(20170321:233949)
+  children:
+    gns3:
+      hosts:
+        master:
+          ip: 20.0.1.1
+          port: 3080
+        firsthoprouter:
+          console:
+            ip: 20.0.1.1
+            port: 5001
+          ssh: 20.0.1.13
+          template: Cisco IOSvL2 15.2(20170321:233949)
+          node_type: qemu
+          symbol: :/symbols/multilayer_switch.svg
+          port_name_format: Gi{1}/{0}
+          properties:
+            adapter_type: e1000
+            adapters: 16
+            qemu_path: "/usr/bin/qemu-system-x86_64"
+          position:
+            x: -55
+            y: 10
+            z: 1
+        switch:
+          console:
+            ip: 20.0.1.1
+            port: 5002
+          ssh: 20.0.1.14
+          template: Ethernet switch
+          node_type: ethernet_switch
+          symbol: :/symbols/ethernet_switch.svg
+          port_name_format: Ethernet{0}
+          properties:
+            ports_mapping:
+            - name: Ethernet0
+              port_number: 0
+              type: access
+              vlan: 1
+            - name: Ethernet1
+              port_number: 1
+              type: access
+              vlan: 1
+            - name: Ethernet2
+              port_number: 2
+              type: access
+              vlan: 1
+            - name: Ethernet3
+              port_number: 3
+              type: access
+              vlan: 1
+            - name: Ethernet4
+              port_number: 4
+              type: access
+              vlan: 1
+            - name: Ethernet5
+              port_number: 5
+              type: access
+              vlan: 1
+            - name: Ethernet6
+              port_number: 6
+              type: access
+              vlan: 1
+            - name: Ethernet7
+              port_number: 7
+              type: access
+              vlan: 1
+          position:
+            x: -65
+            y: 100
+            z: 1
+        cloud:
+          template: Cloud
+          node_type: cloud
+          symbol: :/symbols/cloud.svg
+          properties:
+            interfaces:
+            - name: docker0
+              special: true
+              type: ethernet
+            - name: eth0
+              special: false
+              type: ethernet
+            - name: lo
+              special: true
+              type: ethernet
+            - name: virbr0
+              special: true
+              type: ethernet
+            - name: virbr0-nic
+              special: true
+              type: ethernet
+            ports_mapping:
+            - interface: eth0
+              name: eth0
+              port_number: 0
+              type: ethernet
+            remote_console_host: ''
+            remote_console_http_path: "/"
+            remote_console_port: 23
+            remote_console_type: none
+          position:
+            x: -109
+            y: 209
+            z: 1
+    datacenter1:
+      children:
+        rack1000:
+          vars:
+            unit: shared
+            node_type: qemu
+            symbol: :/symbols/multilayer_switch.svg
+            port_name_format: Gi{1}/{0}
+            properties:
+              adapter_type: e1000
+              adapters: 16
+              qemu_path: "/usr/bin/qemu-system-x86_64"
+          hosts:
+            DC1R1000MS1:
+              console:
+                ip: 20.0.1.1
+                port: 5011
+              ssh: 10.0.1.4
+              template: Cisco IOSvL2 15.2(20170321:233949)
+              type: mgmt-spine-switches
+              position:
+                x: -144
+                y: -89
+                z: 1
+            DC1R1000MS2:
+              console:
+                ip: 20.0.1.1
+                port: 5022
+              ssh: 10.0.1.5
+              template: Cisco IOSvL2 15.2(20170321:233949)
+              type: mgmt-spine-switches
+              position:
+                x: 44
+                y: -89
+                z: 1
+            DC1R1000DS1:
+              console:
+                ip: 20.0.1.1
+                port: 5013
+              ssh: 10.0.1.6
+              template: Cisco IOSvL2 15.2(20170321:233949)
+              type: data-spine-switches
+              position:
+                x: -144
+                y: -247
+                z: 1
+            DC1R1000DS2:
+              console:
+                ip: 20.0.1.1
+                port: 5014
+              ssh: 10.0.1.7
+              template: Cisco IOSvL2 15.2(20170321:233949)
+              type: data-spine-switches
+              position:
+                x: 44
+                y: -247
+                z: 1
+        rack1001:
+          vars:
+            unit: businessunit1
+            node_type: qemu
+            symbol: :/symbols/multilayer_switch.svg
+            port_name_format: Gi{1}/{0}
+            properties:
+              adapter_type: e1000
+              adapters: 16
+              qemu_path: "/usr/bin/qemu-system-x86_64"
+          hosts:
+            DC1R1001ML1:
+              console:
+                ip: 20.0.1.1
+                port: 5111
+              ssh: 10.1.1.4
+              template: Cisco IOSvL2 15.2(20170321:233949)
+              type: mgmt-leaf-switches
+            DC1R1001DL1:
+              console:
+                ip: 20.0.1.1
+                port: 5112
+              ssh: 10.1.1.5
+              template: Cisco IOSvL2 15.2(20170321:233949)
+              type: data-leaf-switches
+            DC1R1001DL2:
+              console:
+                ip: 20.0.1.1
+                port: 5113
+              ssh: 10.1.1.6
+              template: Cisco IOSvL2 15.2(20170321:233949)
+              type: data-leaf-switches
+    datacenter2:
+      children:
+        rack2000:
+          vars:
+            unit: shared
+            node_type: qemu
+            symbol: :/symbols/multilayer_switch.svg
+            port_name_format: Gi{1}/{0}
+            properties:
+              adapter_type: e1000
+              adapters: 16
+              qemu_path: "/usr/bin/qemu-system-x86_64"
+          hosts:
+            DC2R2000MS1:
+              console:
+                ip: 20.0.1.1
+                port: 5021
+              ssh: 10.0.2.
+              template: Cisco IOSvL2 15.2(20170321:233949)
+              type: mgmt-spine-switches
+            DC2R2000MS2:
+              console:
+                ip: 20.0.1.1
+                port: 5022
+              ssh: 10.0.2.5
+              template: Cisco IOSvL2 15.2(20170321:233949)
+              type: mgmt-spine-switches
+            DC2R2000DS1:
+              console:
+                ip: 20.0.1.1
+                port: 5023
+              ssh: 10.0.2.6
+              template: Cisco IOSvL2 15.2(20170321:233949)
+              type: data-spine-switches
+            DC2R2000DS2:
+              console:
+                ip: 20.0.1.1
+                port: 5024
+              ssh: 10.0.2.7
+              template: Cisco IOSvL2 15.2(20170321:233949)
+              type: data-spine-switches
+        rack2001:
+          vars:
+            unit: businessunit1
+            node_type: qemu
+            symbol: :/symbols/multilayer_switch.svg
+            port_name_format: Gi{1}/{0}
+            properties:
+              adapter_type: e1000
+              adapters: 16
+              qemu_path: "/usr/bin/qemu-system-x86_64"
+          hosts:
+            DC2R2001ML1:
+              console:
+                ip: 20.0.1.1
+                port: 5121
+              ssh: 10.1.2.4
+              template: Cisco IOSvL2 15.2(20170321:233949)
+              type: mgmt-leaf-switches
+            DC2R2001DL1:
+              console:
+                ip: 20.0.1.1
+                port: 5122
+              ssh: 10.1.2.5
+              template: Cisco IOSvL2 15.2(20170321:233949)
+              type: data-leaf-switches
+            DC2R2001DL2:
+              console:
+                ip: 20.0.1.1
+                port: 5123
+              ssh: 10.1.2.6
+              template: Cisco IOSvL2 15.2(20170321:233949)
+              type: data-leaf-switches

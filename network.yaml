@@ -1,0 +1,15 @@
+- hosts: all
+  gather_facts: no
+  collections:
+    - ansible.netcommon
+    - cisco.ios
+    - community.general
+
+  pre_tasks:
+    - debug:
+        msg: "Remember to add jinja2_native=True to [defaults] section of ansible.cfg"
+      delegate_to: localhost
+      run_once: true
+
+  roles:
+    - ansible-template

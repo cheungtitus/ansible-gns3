@@ -1,0 +1,86 @@
+---
+- debug:
+    msg: "Connecting to {{ inventory_hostname }} at {{ hostvars['master'].ip }} : {{ hostvars['master'].port }}"
+  delegate_to: localhost
+
+- name: Interact with system
+  shell: |
+    set timeout 30
+
+    spawn telnet {{ host }} {{ port }}
+
+    send "\r"
+
+    expect "Switch>"
+    send "term length 0\r"
+
+    expect "Switch>"
+    send "en\r"
+
+    expect "Switch>"
+    send "conf t\r"
+
+    expect "Switch(config)#"
+    send "no ip domain-lookup\r"
+
+    expect "Switch(config)#"
+    send "hostname {{ inventory_hostname }}\r"
+
+    expect "{{ inventory_hostname }}(config)#"
+    send "ip domain-name blah.com\r"
+
+    expect "{{ inventory_hostname }}(config)#"
+    send "line con 0\r"
+
+    expect "{{ inventory_hostname }}(config-line)#"
+    send "logging synchronous\r"
+
+    expect "{{ inventory_hostname }}(config-line)#"
+    send "login local\r"
+
+    expect "{{ inventory_hostname }}(config-line)#"
+    send "exit\r"
+
+    expect "{{ inventory_hostname }}(config)#"
+    send "line vty 0 4\r"
+
+    expect "{{ inventory_hostname }}(config-line)#"
+    send "logging synchronous\r"
+
+    expect "{{ inventory_hostname }}(config-line)#"
+    send "login local\r"
+
+    expect "{{ inventory_hostname }}(config-line)#"
+    send "transport input telnet ssh\r"
+
+    expect "{{ inventory_hostname }}(config-line)#"
+    send "exit\r"
+
+    expect "{{ inventory_hostname }}(config)#"
+    send "username admin password dev\r"
+
+    expect "{{ inventory_hostname }}(config)#"
+    send "service password-encryption\r"
+
+    expect "{{ inventory_hostname }}(config)#"
+    send "crypto key generate rsa\r"
+
+    # expect -re "(.|\n)*How many bits in the modulus \[512\]:\s"
+    expect *
+    send "1024\r"
+
+    sleep 2
+
+    expect "{{ inventory_hostname }}(config)#"
+    send "ip ssh version 2\r"
+
+    expect "{{ inventory_hostname }}(config)#"
+    send "end"
+  args:
+    executable: /usr/bin/expect
+  changed_when: yes
+  delegate_to: localhost
+  when:
+    - inventory_hostname != 'master'
+    - inventory_hostname != 'cloud'
+...

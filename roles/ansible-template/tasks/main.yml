@@ -1,0 +1,22 @@
+---
+# https://stackoverflow.com/questions/52487396/pass-integer-variable-to-task-without-losing-the-integer-type
+- name: Ensure we are using native Jinja
+  blockinfile:
+    path: /etc/ansible/ansible.cfg
+    state: present
+    block: | 
+      [defaults]
+      jinja2_native = True
+  delegate_to: localhost
+  run_once: true
+  become: true
+  tags: always
+
+- name: Import GNS3 tasks
+  import_tasks: gns3.yml
+  tags: import_gns3
+
+- name: Import GNS3 tasks for managing links
+  import_tasks: gns3-links.yml
+  tags: import_gns3_links
+...

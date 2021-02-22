@@ -1,0 +1,11 @@
+{
+    "nodes": [{
+      "adapter_number": {{ linkitem['a-end']['port'] | regex_replace('(eth|Ethernet|Gi0/)', '') | int }},
+      "node_id": "{{ result_gns3_nodes_get | json_query('json[?name==`' + linkitem['a-end']['device'] + '`].node_id') | join() }}",
+      "port_number": 0
+    }, {
+      "adapter_number": {{ linkitem['b-end']['port'] | regex_replace('(eth|Ethernet|Gi0/)', '') | int }},
+      "node_id": "{{ result_gns3_nodes_get | json_query('json[?name==`' + linkitem['b-end']['device'] + '`].node_id') | join() }}",
+      "port_number": 0
+    }]
+}

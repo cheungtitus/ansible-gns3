@@ -1,0 +1,24 @@
+---
+- name: Get the project id for project named {{ project_template['name'] }}
+  block:
+    - name: Get list of GNS3 projects
+      uri:
+        url: "http://{{ ip }}:{{ port }}/v2/projects"
+        method: GET
+        body_format: json
+        status_code: [200]
+        headers:
+          Content-Type: application/json
+        force_basic_auth: yes
+        url_username: "{{ project_template['username'] }}"
+        url_password: "{{ project_template['password'] }}"
+      register: result_gns3_projects_get
+      ignore_errors: true
+    
+    - name: Extract project id for project named {{ project_template['name'] }}
+      set_fact:
+        project_id: "{{ result_gns3_projects_get | json_query('json[?name==`ansible-template`].project_id') | join() }}"
+  delegate_to: localhost
+  run_once: true
+  tags: gns3_project_getid
+...
