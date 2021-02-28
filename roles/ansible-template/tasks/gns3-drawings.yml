@@ -1,0 +1,58 @@
+---
+- name: Load drawings
+  include_vars:
+    file: drawings.yml
+  delegate_to: localhost
+  run_once: true
+
+#- set_fact:
+#    body: |
+#      {
+#        "locked": false,
+#        "rotation": {{ drawingitem | json_query('*.rotation') }},
+#        "svg": "{{ drawingitem | json_query('*.svg') }}",
+#        "x": {{ drawingitem | json_query('*.x') }},
+#        "y": {{ drawingitem | json_query('*.y') }},
+#        "z": {{ drawingitem | json_query('*.z') }}
+#      }
+#  with_items: "{{ drawings }}"
+#  loop_control:
+#    loop_var: drawingitem
+#  delegate_to: localhost
+#  run_once: true
+#
+#- debug:
+#    var: body
+
+- name: Create drawings
+  uri:
+    url: "http://{{ hostvars['master'].ip }}:{{ hostvars['master'].port }}/v2/projects/{{ hostvars['master'].project_id }}/drawings"
+    method: POST
+    body_format: json
+    status_code: [201, 400]
+    headers:
+      Content-Type: application/json
+    force_basic_auth: yes
+    url_username: "{{ project_template['username'] }}"
+    url_password: "{{ project_template['password'] }}"
+    body: |
+      {
+        "locked": false,
+        "rotation": {{ drawingitem | json_query('*.rotation') | join() }},
+        "svg": "{{ drawingitem | json_query('*.svg') | join() | regex_replace('\"', '\\"') }}",
+        "x": {{ drawingitem | json_query('*.x') | join() }},
+        "y": {{ drawingitem | json_query('*.y') | join() }},
+        "z": {{ drawingitem | json_query('*.z') | join() }}
+      }
+  register: result_drawing
+  with_items: "{{ drawings }}"
+  loop_control:
+    loop_var: drawingitem
+  delegate_to: localhost
+  run_once: true
+  ignore_errors: true
+  tags: drawings_create
+
+- debug:
+    var: result_drawing
+...

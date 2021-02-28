@@ -1,13 +1,26 @@
 ---
 - debug:
-    msg: "Connecting to {{ inventory_hostname }} at {{ hostvars['master'].ip }} : {{ hostvars['master'].port }}"
+    msg: "Starting {{ inventory_hostname }} at {{ console['ip'] }} : {{ console['port'] | int }}"
   delegate_to: localhost
+  when:
+    - inventory_hostname in lookup('inventory_hostnames', 'gns3:rack1000')
+    - inventory_hostname != 'master'
+    - inventory_hostname != 'cloud'
+
+- name: Starting nodes
+  import_tasks: gns3-nodes-start.yml
+  when: inventory_hostname in lookup('inventory_hostnames', 'gns3:rack1000')
+  tags: import_gns3_node_start
+
+- name: Wait for nodes to start
+  pause:
+    minutes: "{{ project_template['start_wait_min'] }}"
 
 - name: Interact with system
   shell: |
     set timeout 30
 
-    spawn telnet {{ host }} {{ port }}
+    spawn telnet {{ console['ip'] }} {{ console['port'] | int }}
 
     send "\r"
 
@@ -75,12 +88,26 @@
     send "ip ssh version 2\r"
 
     expect "{{ inventory_hostname }}(config)#"
+    send "interface {{ ssh['interface'] }}\r"
+
+    expect "{{ inventory_hostname }}(config-if)#"
+    send "no switchport\r"
+
+    expect "{{ inventory_hostname }}(config-if)#"
+    send "ip address {{ ssh['ip'] }} {{ ssh['mask'] }}\r"
+
+    expect "{{ inventory_hostname }}(config-if)#"
+    send "no shutdown\r"
+
+    expect "{{ inventory_hostname }}(config)#"
     send "end"
   args:
     executable: /usr/bin/expect
   changed_when: yes
   delegate_to: localhost
   when:
+    - inventory_hostname in lookup('inventory_hostnames', 'gns3:rack1000')
+    - inventory_hostname != 'switch'
     - inventory_hostname != 'master'
     - inventory_hostname != 'cloud'
 ...

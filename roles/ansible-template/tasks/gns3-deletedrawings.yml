@@ -1,0 +1,29 @@
+---
+- name: Get the project id for project named {{ project_template['name'] }}
+  import_tasks: gns3-getprojectid.yml
+  tags: import_gns3_getprojectid
+
+- name: Get a list of drawings already created in project named {{ project_template['name'] }}
+  import_tasks: gns3-getdrawings.yml
+  tags: import_gns3_getdrawings
+
+- name: Delete drawings in project
+  uri:
+    url: "http://{{ ip }}:{{ port }}/v2/projects/{{ project_id }}/drawings/{{ drawingitem }}"
+    method: DELETE
+    body_format: json
+    status_code: [204, 400]
+    headers:
+      Content-Type: application/json
+    force_basic_auth: yes
+    url_username: "{{ project_template['username'] }}"
+    url_password: "{{ project_template['password'] }}"
+  register: result_gns3_drawings_delete
+  with_items: "{{ result_gns3_drawings_get | json_query('json[].drawing_id') | list }}"
+  loop_control:
+    loop_var: drawingitem
+  delegate_to: localhost
+  run_once: true
+  ignore_errors: true
+  tags: result_gns3_drawings_delete
+...

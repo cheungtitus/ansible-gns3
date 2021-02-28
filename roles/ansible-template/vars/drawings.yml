@@ -1,0 +1,27 @@
+---
+drawings:
+- border-datacenter1:
+    rotation: 0
+    svg: "<svg height=\"296\" width=\"320\"><rect fill=\"#ffffff\" fill-opacity=\"1.0\" height=\"296\" stroke=\"#000000\" stroke-width=\"2\" width=\"318\"/></svg>"
+    x: -192
+    y: -420
+    z: 0
+- text-datacenter1:
+    rotation: 0
+    svg: "<svg height=\"24\" width=\"89\"><text fill=\"#000000\" fill-opacity=\"1.0\" font-family=\"TypeWriter\" font-size=\"10.0\" font-weight=\"bold\">datacenter1</text></svg>"
+    x: -80
+    y: -420
+    z: 2
+- text-management-network:
+    rotation: 0
+    svg: "<svg height=\"24\" width=\"126\"><text fill=\"#000000\" fill-opacity=\"1.0\" font-family=\"TypeWriter\" font-size=\"10.0\" font-weight=\"bold\">Management Network</text></svg>"
+    x: -88
+    y: 9
+    z: 2
+- text-physical-network:
+    rotation: 0
+    svg: "<svg height=\"24\" width=\"118\"><text fill=\"#000000\" fill-opacity=\"1.0\" font-family=\"TypeWriter\"font-size=\"10.0\" font-weight=\"bold\">Physical Network</text></svg>"
+    x: -76
+    y: 232
+    z: 2
+...

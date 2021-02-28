@@ -1,0 +1,21 @@
+---
+- name: Get the drawings in project named {{ project_template['name'] }}
+  block:
+    - name: Get the drawings in project named {{ project_template['name'] }}
+      uri:
+        url: "http://{{ ip }}:{{ port }}/v2/projects/{{ project_id }}/drawings"
+        method: GET
+        body_format: json
+        status_code: [200]
+        headers:
+          Content-Type: application/json
+        force_basic_auth: yes
+        url_username: "{{ project_template['username'] }}"
+        url_password: "{{ project_template['password'] }}"
+      register: result_gns3_drawings_get
+
+  ignore_errors: true
+  delegate_to: localhost
+  run_once: true
+  tags: gns3_drawings_get
+...

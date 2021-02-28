@@ -1,0 +1,30 @@
+---
+- name: Get the project id for project named {{ project_template['name'] }}
+  import_tasks: gns3-getprojectid.yml
+  tags: import_gns3_getprojectid
+
+- name: Start nodes
+  uri:
+    url: "http://{{ hostvars['master'].ip }}:{{ hostvars['master'].port }}/v2/projects/{{ hostvars['master'].project_id }}/nodes/start"
+    method: POST
+    body_format: json
+    status_code: [204, 400, 404]
+    headers:
+      Content-Type: application/json
+    force_basic_auth: yes
+    url_username: "{{ project_template['username'] }}"
+    url_password: "{{ project_template['password'] }}"
+    body: |
+      {
+        "compute_id": "local",
+        "name": "{{ inventory_hostname }}",
+        "node_type": "{{ node_type }}"
+      }
+  register: result_gns3_node_start
+  ignore_errors: true
+  delegate_to: localhost
+  when:
+    - inventory_hostname != 'master'
+    - inventory_hostname != 'cloud'
+  tags: gns3_node_start
+...

@@ -4,13 +4,21 @@
   blockinfile:
     path: /etc/ansible/ansible.cfg
     state: present
-    block: | 
+    block: |
       [defaults]
       jinja2_native = True
   delegate_to: localhost
   run_once: true
   become: true
   tags: always
+
+- name: Delete GNS3 existing nodes
+  import_tasks: gns3-deletenodes.yml
+  tags: import_gns3_delete_nodes
+
+- name: Delete GNS3 existing drawings
+  import_tasks: gns3-deletedrawings.yml
+  tags: import_gns3_delete_drawings
 
 - name: Import GNS3 tasks
   import_tasks: gns3.yml
@@ -19,4 +27,12 @@
 - name: Import GNS3 tasks for managing links
   import_tasks: gns3-links.yml
   tags: import_gns3_links
+
+- name: Create drawings
+  import_tasks: gns3-drawings.yml
+  tags: import_gns3_drawings
+
+- name: Setup basic settings using telnet
+  import_tasks: gns3-initialize.yml
+  tags: import_gns3_initialize
 ...

@@ -1,5 +1,5 @@
 ---
-- name: Create GNS3 project1
+- name: Create GNS3 project
   block:
     - name: Create GNS3 project
       uri:
@@ -54,10 +54,6 @@
       register: result_gns3_projects_get
       ignore_errors: true
 
-    # - name: Print get GNS3 project list result
-    #   debug:
-    #     var: result_gns3_projects_get
-    
     - name: Extract project id for project named {{ project_template['name'] }}
       set_fact:
         project_id: "{{ result_gns3_projects_get | json_query('json[?name==`ansible-template`].project_id') | join() }}"
@@ -103,7 +99,7 @@
   when:
     - inventory_hostname in groups['gns3']
     - inventory_hostname == 'master'
-  tags: gns3_project_open
+  tags: [gns3_project_open, always]
 
 - name: Get template ids
   block:
@@ -121,17 +117,15 @@
       register: result_gns3_templates_get
       ignore_errors: true
 
-    # - name: Print result of getting GNS3 template list
-    #   debug:
-    #     var: result_gns3_templates_get
-
   delegate_to: localhost
   run_once: true
   when:
     - inventory_hostname in groups['gns3']
     - inventory_hostname == 'master'
-  tags: gns3_get_templates
+  tags: [gns3_get_templates, always]
 
+# When creating nodes their properties such as names and console details will be updated
+# Cloud nodes must be created separately as there is no console
 - name: Create cloud node for connecting to physical world
   block:
     - name: Create cloud node for connecting to physical world
@@ -160,17 +154,91 @@
       register: result_gns3_node_create
       ignore_errors: true
 
-    - name: Print result of creating cloud node for connecting to physical world
-      debug:
-        var: result_gns3_node_create
   delegate_to: localhost
   when: >
     inventory_hostname == "cloud"
   tags: gns3_create_cloud_nodes
 
-- name: Create device nodes from template
+#########################################################################################################
+# Non built in types will be created by using templates
+# Updates must be done immediately as nodes are assigned names = <template name>-<number>
+# This means it is not possible to update by looping through inventory separately afterwards
+#########################################################################################################
+- name: Create device nodes from template (non built in type)
   block:
-    - name: Create device nodes from template
+    - name: Get template id of template to use (non built in type)
+      set_fact:
+        template_id: "{{ hostvars['master'].result_gns3_templates_get | json_query('json[?name==`' + template + '`].template_id') | join() }}"
+
+    - name: Create device nodes from template (non built in type)
+      uri:
+        url: "http://{{ hostvars['master'].ip }}:{{ hostvars['master'].port }}/v2/projects/{{ hostvars['master'].project_id }}/templates/{{ template_id }}"
+        method: POST
+        body_format: json
+        status_code: [201, 404]
+        headers:
+          Content-Type: application/json
+        force_basic_auth: yes
+        url_username: "{{ project_template['username'] }}"
+        url_password: "{{ project_template['password'] }}"
+        body: |
+          {
+            "name": "{{ inventory_hostname }}",
+            "x": {{ position['x'] }},
+            "y": {{ position['y'] }}
+          }
+      register: result_gns3_node_create
+      ignore_errors: true
+      when: not hostvars['master'].result_gns3_templates_get | json_query('json[?name==`' + template + '`].builtin') | join() | bool
+
+    - name: Get node id (non built in type)
+      set_fact:
+        node_id: "{{ result_gns3_node_create | json_query('json.node_id') }}"
+
+    - name: Update properties of device nodes (non built in type)
+      uri:
+        url: "http://{{ hostvars['master'].ip }}:{{ hostvars['master'].port }}/v2/projects/{{ hostvars['master'].project_id }}/nodes/{{ node_id }}"
+        method: PUT
+        body_format: json
+        status_code: [200, 400, 404]
+        headers:
+          Content-Type: application/json
+        force_basic_auth: yes
+        url_username: "{{ project_template['username'] }}"
+        url_password: "{{ project_template['password'] }}"
+        body: |
+          {
+            "compute_id": "local",
+            "console": {{ console['port'] | int }},
+            "console_auto_start": false,
+            "console_type": "telnet",
+            "name": "{{ inventory_hostname }}",
+            "properties": {{ properties | to_nice_json }},
+            "symbol": "{{ symbol }}",
+            "x": {{ position['x'] }},
+            "y": {{ position['y'] }},
+            "z": {{ position['z'] }}
+          }
+      register: result_gns3_node_update
+      ignore_errors: true
+
+  delegate_to: localhost
+  when:
+    - inventory_hostname in lookup('inventory_hostnames', 'gns3:rack1000')
+    - inventory_hostname != 'master'
+    - not hostvars['master'].result_gns3_templates_get | json_query('json[?name==`' + template + '`].builtin') | join() | bool
+  tags: gns3_create_device_nodes_notbuiltin
+
+
+#########################################################################################################
+# Built in types will be created by not using templates
+# Updates must be done immediately as nodes are assigned names = <template name>-<number>
+# This means it is not possible to update by looping through inventory separately afterwards
+#########################################################################################################
+- name: Create device nodes from template (built in type)
+  block:
+    # node_type is included due to https://github.com/GNS3/gns3-server/issues/1873
+    - name: Create device nodes (built in type)
       uri:
         url: "http://{{ hostvars['master'].ip }}:{{ hostvars['master'].port }}/v2/projects/{{ hostvars['master'].project_id }}/nodes"
         method: POST
@@ -184,15 +252,10 @@
         body: |
           {
             "compute_id": "local",
-            "console": {{ console['port'] | int }},
-            "console_auto_start": true,
-            "console_host": "{{ console['ip'] }}",
             "console_type": "telnet",
             "name": "{{ inventory_hostname }}",
             "node_type": "{{ node_type }}",
             "port_name_format": "{{ port_name_format }}",
-            "properties": {{ properties | to_nice_json }},
-            "template_id": "{{ hostvars['master'].result_gns3_templates_get | json_query('json[?name==`' + template + '`].template_id') | join() }}",
             "symbol": "{{ symbol }}",
             "x": {{ position['x'] }},
             "y": {{ position['y'] }},
@@ -200,14 +263,46 @@
           }
       register: result_gns3_node_create
       ignore_errors: true
+      when: hostvars['master'].result_gns3_templates_get | json_query('json[?name==`' + template + '`].builtin') | join() | bool
 
-    - name: Print create device nodes result
-      debug:
+    - debug:
         var: result_gns3_node_create
+
+    - name: Get node id (built in type)
+      set_fact:
+        node_id: "{{ result_gns3_node_create | json_query('json.node_id') }}"
+
+    - name: Update properties of device nodes (built in type)
+      uri:
+        url: "http://{{ hostvars['master'].ip }}:{{ hostvars['master'].port }}/v2/projects/{{ hostvars['master'].project_id }}/nodes/{{ node_id }}"
+        method: PUT
+        body_format: json
+        status_code: [200, 400, 404]
+        headers:
+          Content-Type: application/json
+        force_basic_auth: yes
+        url_username: "{{ project_template['username'] }}"
+        url_password: "{{ project_template['password'] }}"
+        body: |
+          {
+            "compute_id": "local",
+            "console": {{ console['port'] | int }},
+            "console_auto_start": true,
+            "console_type": "telnet",
+            "name": "{{ inventory_hostname }}",
+            "properties": {{ properties | to_nice_json }},
+            "symbol": "{{ symbol }}",
+            "x": {{ position['x'] }},
+            "y": {{ position['y'] }},
+            "z": {{ position['z'] }}
+          }
+      register: result_gns3_node_update
+      ignore_errors: true
+
   delegate_to: localhost
-  when: >
-    inventory_hostname in lookup('inventory_hostnames', 'rack1000') or
-    inventory_hostname == "switch" or
-    inventory_hostname == "firsthoprouter"
-  tags: gns3_create_device_nodes
-...
+  when:
+    - inventory_hostname in lookup('inventory_hostnames', 'gns3:rack1000')
+    - inventory_hostname != 'master'
+    - inventory_hostname != 'cloud'
+    - hostvars['master'].result_gns3_templates_get | json_query('json[?name==`' + template + '`].builtin') | join() | bool
+  tags: gns3_create_device_nodes_builtin
