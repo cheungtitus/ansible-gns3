@@ -23,8 +23,8 @@
 #     headers:
 #       Content-Type: application/json
 #     force_basic_auth: yes
-#     url_username: "{{ project_template['username'] }}"
-#     url_password: "{{ project_template['password'] }}"
+#     url_username: "{{ username }}"
+#     url_password: "{{ password }}"
 #     body: "{{ payload_links_create }}"
 #   with_items: "{{ links }}"
 #   loop_control:
@@ -43,8 +43,8 @@
     headers:
       Content-Type: application/json
     force_basic_auth: yes
-    url_username: "{{ project_template['username'] }}"
-    url_password: "{{ project_template['password'] }}"
+    url_username: "{{ username }}"
+    url_password: "{{ password }}"
     body: |
       {
         "nodes": [{
@@ -77,8 +77,8 @@
     headers:
       Content-Type: application/json
     force_basic_auth: yes
-    url_username: "{{ project_template['username'] }}"
-    url_password: "{{ project_template['password'] }}"
+    url_username: "{{ username }}"
+    url_password: "{{ password }}"
     body: |
       {
         "nodes": [{
@@ -111,8 +111,8 @@
     headers:
       Content-Type: application/json
     force_basic_auth: yes
-    url_username: "{{ project_template['username'] }}"
-    url_password: "{{ project_template['password'] }}"
+    url_username: "{{ username }}"
+    url_password: "{{ password }}"
     body: |
       {
         "nodes": [{
@@ -145,8 +145,8 @@
     headers:
       Content-Type: application/json
     force_basic_auth: yes
-    url_username: "{{ project_template['username'] }}"
-    url_password: "{{ project_template['password'] }}"
+    url_username: "{{ username }}"
+    url_password: "{{ password }}"
     body: |
       {
         "nodes": [{

@@ -5,6 +5,9 @@
 
 - name: Get a list of drawings already created in project named {{ project_template['name'] }}
   import_tasks: gns3-getdrawings.yml
+  when:
+    - project_id is defined
+    - project_id != ''
   tags: import_gns3_getdrawings
 
 - name: Delete drawings in project
@@ -16,14 +19,17 @@
     headers:
       Content-Type: application/json
     force_basic_auth: yes
-    url_username: "{{ project_template['username'] }}"
-    url_password: "{{ project_template['password'] }}"
+    url_username: "{{ username }}"
+    url_password: "{{ password }}"
   register: result_gns3_drawings_delete
-  with_items: "{{ result_gns3_drawings_get | json_query('json[].drawing_id') | list }}"
+  with_items: "{{ ( result_gns3_drawings_get.json | default([], true) ) | json_query('[].drawing_id') | list }}"
   loop_control:
     loop_var: drawingitem
   delegate_to: localhost
   run_once: true
   ignore_errors: true
+  when:
+    - project_id is defined
+    - project_id != ''
   tags: result_gns3_drawings_delete
 ...

@@ -16,7 +16,7 @@
   pause:
     minutes: "{{ project_template['start_wait_min'] }}"
 
-- name: Interact with system
+- name: Apply basic setup to all nodes
   shell: |
     set timeout 30
 
@@ -70,7 +70,7 @@
     send "exit\r"
 
     expect "{{ inventory_hostname }}(config)#"
-    send "username admin password dev\r"
+    send "username {{ username_nodes }} password {{ password_nodes }}\r"
 
     expect "{{ inventory_hostname }}(config)#"
     send "service password-encryption\r"
@@ -99,8 +99,14 @@
     expect "{{ inventory_hostname }}(config-if)#"
     send "no shutdown\r"
 
-    expect "{{ inventory_hostname }}(config)#"
-    send "end"
+    expect "{{ inventory_hostname }}(config-if)#"
+    send "end\r"
+
+    expect "{{ inventory_hostname }}#"
+    send "exit\r"
+
+    expect "{{ inventory_hostname }}#"
+    send "exit\r"
   args:
     executable: /usr/bin/expect
   changed_when: yes
@@ -110,4 +116,125 @@
     - inventory_hostname != 'switch'
     - inventory_hostname != 'master'
     - inventory_hostname != 'cloud'
+  tags: configbase
+
+- name: Set default gateway for first hop router to gateway of physical network
+  shell: |
+     set timeout 30
+
+     spawn telnet {{ console['ip'] }} {{ console['port'] | int }}
+
+     send "\r"
+
+     expect "Username:"
+     send "{{ username_nodes }}\r"
+
+     expect "Password:"
+     send "{{ password_nodes }}\r"
+
+     expect "{{ inventory_hostname }}>"
+     send "en\r"
+
+     expect "{{ inventory_hostname }}#"
+     send "conf t\r"
+
+     expect "{{ inventory_hostname }}(config)#"
+     send "ip route 0.0.0.0 0.0.0.0 {{ default_gateway['ip'] }}\r"
+
+     expect "{{ inventory_hostname }}(config)#"
+     send "interface {{ internal_gateway['interface'] }}\r"
+
+     expect "{{ inventory_hostname }}(config-if)#"
+     send "no switchport\r"
+
+     expect "{{ inventory_hostname }}(config-if)#"
+     send "ip address {{ internal_gateway['ip'] }} {{ internal_gateway['mask'] }}\r"
+
+     expect "{{ inventory_hostname }}(config-if)#"
+     send "no shutdown\r"
+
+     expect "{{ inventory_hostname }}(config)#"
+     send "end\r"
+
+     expect "{{ inventory_hostname }}#"
+     send "exit\r"
+
+     expect "{{ inventory_hostname }}#"
+     send "exit\r"
+  args:
+    executable: /usr/bin/expect
+  changed_when: yes
+  delegate_to: localhost
+  when:
+    - inventory_hostname == 'firsthoprouter'
+  tags: configfirsthoprouter
+
+- name: Setup routing on first hop router and management spine
+  shell: |
+    set timeout 30
+
+    spawn telnet {{ console['ip'] }} {{ console['port'] | int }}
+
+    send "\r"
+
+    expect "Username:"
+    send "{{ username_nodes }}\r"
+
+    expect "Password:"
+    send "{{ password_nodes }}\r"
+
+    expect "{{ inventory_hostname }}>"
+    send "en\r"
+
+    expect "{{ inventory_hostname }}#"
+    send "conf t\r"
+
+    expect "{{ inventory_hostname }}(config)#"
+    send "ip routing\r"
+
+    expect "{{ inventory_hostname }}(config)#"
+    send "router ospf 1\r"
+
+    expect "{{ inventory_hostname }}(config-router)#"
+    send "network 0.0.0.0 0.0.0.0 area 0\r"
+
+    expect "{{ inventory_hostname }}(config-router)#"
+    send "end\r"
+
+    expect "{{ inventory_hostname }}#"
+    send "exit\r"
+
+    expect "{{ inventory_hostname }}#"
+    send "exit\r"
+  args:
+    executable: /usr/bin/expect
+  changed_when: yes
+  delegate_to: localhost
+  when: >
+    inventory_hostname == 'firsthoprouter' or
+    (type is defined and type is regex('mgmt-spine-switches'))
+  tags: config_mgmt_routing
+
+# Management spine switches should now be reachable via SSH so can use Ansible modules
+# Interfaces facing management leaf switches and data spine switches should be created first
+#- name: Setup management spine switches
+#  when:
+#    - type is defined
+#    - type is regex('mgmt-spine-switches')
+
+# Management leaf switches and data spine / leaf switches should now be reachable via SSH so can use Ansible modules
+#- name: Setup management leaf switches
+#  when:
+#    - type is defined
+#    - type is regex('mgmt-leaf-switches')
+#
+#- name: Setup data spine switches
+#  when:
+#    - type is defined
+#    - type is regex('data-spine-switches')
+#
+#- name: Setup data leaf switches
+#  when:
+#    - type is defined
+#    - type is regex('data-leaf-switches')
 ...

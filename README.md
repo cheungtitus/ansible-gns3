@@ -24,6 +24,7 @@ The `roles/ansible-template/tasks/initialize.yml` would apply this initial setti
 
 #### SSH via management network
 This is representative to how the network will be setup or updated normally using SSH.  Most of the settings will be project specific and is not included in this repo.
+It is important that the Ansible Controller sits physically on the same network as the ESXi server as going through additional firewall or NAT devices would cause issues for reaching to the management spines.
 ```<!-- language: lang-none -->
 -----------------------------------------------------------------------------------------------------------------------------------|
 |                                   |-------------------------------------------------------------------------------------------|  |
@@ -44,8 +45,10 @@ This is representative to how the network will be setup or updated normally usin
 
 All sensitive data should go into this file and encrypted using Ansible vault.  At a minimum the following GNS3 credentials should be encrypted:
 ```txt
-username: <actual username>
-password: <actual password>
+username: <GNS3 username>
+password: <GNS3 password>
+username_nodes: <switch username>
+password_nodes: <switch password> 
 ```
 ##### Links
 > roles/ansible-template/vars/main.yml

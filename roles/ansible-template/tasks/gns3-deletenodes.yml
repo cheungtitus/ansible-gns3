@@ -5,6 +5,9 @@
 
 - name: Get a list of nodes already created in project named {{ project_template['name'] }}
   import_tasks: gns3-getnodes.yml
+  when:
+    - project_id is defined
+    - project_id != ''
   tags: import_gns3_getnodes
 
 - name: Delete nodes in project
@@ -16,14 +19,17 @@
     headers:
       Content-Type: application/json
     force_basic_auth: yes
-    url_username: "{{ project_template['username'] }}"
-    url_password: "{{ project_template['password'] }}"
+    url_username: "{{ username }}"
+    url_password: "{{ password }}"
   register: result_gns3_nodes_delete
-  with_items: "{{ result_gns3_nodes_get | json_query('json[].node_id') | list }}"
+  with_items: "{{ ( result_gns3_nodes_get.json | default([], true) ) | json_query('[].node_id') | list }}"
   loop_control:
     loop_var: nodeitem
   delegate_to: localhost
   run_once: true
   ignore_errors: true
+  when:
+    - project_id is defined
+    - project_id != ''
   tags: result_gns3_nodes_delete
 ...

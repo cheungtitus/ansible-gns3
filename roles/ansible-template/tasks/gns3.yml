@@ -10,8 +10,8 @@
         headers:
           Content-Type: application/json
         force_basic_auth: yes
-        url_username: "{{ project_template['username'] }}"
-        url_password: "{{ project_template['password'] }}"
+        url_username: "{{ username }}"
+        url_password: "{{ password }}"
         body:
           auto_close: false
           drawing_grid_size: 25
@@ -49,8 +49,8 @@
         headers:
           Content-Type: application/json
         force_basic_auth: yes
-        url_username: "{{ project_template['username'] }}"
-        url_password: "{{ project_template['password'] }}"
+        url_username: "{{ username }}"
+        url_password: "{{ password }}"
       register: result_gns3_projects_get
       ignore_errors: true
 
@@ -67,8 +67,8 @@
         headers:
           Content-Type: application/json
         force_basic_auth: yes
-        url_username: "{{ project_template['username'] }}"
-        url_password: "{{ project_template['password'] }}"
+        url_username: "{{ username }}"
+        url_password: "{{ password }}"
       register: result_gns3_project_open
       ignore_errors: true
 
@@ -85,8 +85,8 @@
         headers:
           Content-Type: application/json
         force_basic_auth: yes
-        url_username: "{{ project_template['username'] }}"
-        url_password: "{{ project_template['password'] }}"
+        url_username: "{{ username }}"
+        url_password: "{{ password }}"
       register: result_gns3_project_open
       ignore_errors: true
 
@@ -112,8 +112,8 @@
         headers:
           Content-Type: application/json
         force_basic_auth: yes
-        url_username: "{{ project_template['username'] }}"
-        url_password: "{{ project_template['password'] }}"
+        url_username: "{{ username }}"
+        url_password: "{{ password }}"
       register: result_gns3_templates_get
       ignore_errors: true
 
@@ -137,8 +137,8 @@
         headers:
           Content-Type: application/json
         force_basic_auth: yes
-        url_username: "{{ project_template['username'] }}"
-        url_password: "{{ project_template['password'] }}"
+        url_username: "{{ username }}"
+        url_password: "{{ password }}"
         body: |
           {
             "compute_id": "local",
@@ -179,8 +179,8 @@
         headers:
           Content-Type: application/json
         force_basic_auth: yes
-        url_username: "{{ project_template['username'] }}"
-        url_password: "{{ project_template['password'] }}"
+        url_username: "{{ username }}"
+        url_password: "{{ password }}"
         body: |
           {
             "name": "{{ inventory_hostname }}",
@@ -204,8 +204,8 @@
         headers:
           Content-Type: application/json
         force_basic_auth: yes
-        url_username: "{{ project_template['username'] }}"
-        url_password: "{{ project_template['password'] }}"
+        url_username: "{{ username }}"
+        url_password: "{{ password }}"
         body: |
           {
             "compute_id": "local",
@@ -247,8 +247,8 @@
         headers:
           Content-Type: application/json
         force_basic_auth: yes
-        url_username: "{{ project_template['username'] }}"
-        url_password: "{{ project_template['password'] }}"
+        url_username: "{{ username }}"
+        url_password: "{{ password }}"
         body: |
           {
             "compute_id": "local",
@@ -281,8 +281,8 @@
         headers:
           Content-Type: application/json
         force_basic_auth: yes
-        url_username: "{{ project_template['username'] }}"
-        url_password: "{{ project_template['password'] }}"
+        url_username: "{{ username }}"
+        url_password: "{{ password }}"
         body: |
           {
             "compute_id": "local",

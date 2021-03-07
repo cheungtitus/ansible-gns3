@@ -10,6 +10,14 @@
         msg: "Remember to add jinja2_native=True to [defaults] section of ansible.cfg"
       delegate_to: localhost
       run_once: true
+      tags: always
+
+    - name: Import GNS3 username and password from vault
+      include_vars:
+        file: roles/ansible-template/vars/credentials.yml
+      delegate_to: localhost
+      run_once: true
+      tags: always
 
   roles:
     - ansible-template

@@ -10,8 +10,8 @@
         headers:
           Content-Type: application/json
         force_basic_auth: yes
-        url_username: "{{ project_template['username'] }}"
-        url_password: "{{ project_template['password'] }}"
+        url_username: "{{ username }}"
+        url_password: "{{ password }}"
       register: result_gns3_projects_get
       ignore_errors: true
     
