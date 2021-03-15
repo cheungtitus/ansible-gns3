@@ -3,7 +3,7 @@ all:
     project_template:
       name: ansible-template
       path: /opt/gns3/projects/ansible-template
-      start_wait_min: 3
+      start_wait_min: 5
       devices:
         mgmt-spine-switches:
           template: Cisco IOSvL2 15.2(20170321:233949)
@@ -23,27 +23,26 @@ all:
           console:
             ip: 192.168.50.101
             port: 5001
-          ssh:
-            interface: Gi0/0
-            ip: 192.168.50.102
-            mask: 255.255.255.0
-          internal_gateway:
-            interface: Gi0/1
-            ip: 10.0.1.3
-            mask: 255.255.255.0
+          interfaces:
+            Gi0/0:
+              ip: 192.168.50.102
+              mask: 255.255.255.248
+            Gi0/1:
+              ip: 192.168.50.129
+              mask: 255.255.255.240
           default_gateway:
             ip: 192.168.50.1
           template: Cisco IOSvL2 15.2(20170321:233949)
           node_type: qemu
-          symbol: :/symbols/multilayer_switch.svg
+          symbol: :/symbols/affinity/circle/gray/router.svg
           port_name_format: Gi{1}/{0}
           properties:
             adapter_type: e1000
             adapters: 16
             qemu_path: "/usr/bin/qemu-system-x86_64"
           position:
-            x: -55
-            y: 100
+            x: -30
+            y: 174
             z: 1
         switch:
           console:
@@ -88,8 +87,8 @@ all:
               type: access
               vlan: 1
           position:
-            x: -109
-            y: -15
+            x: -82
+            y: 35
             z: 1
         cloud:
           template: Cloud
@@ -122,8 +121,8 @@ all:
             remote_console_port: 23
             remote_console_type: none
           position:
-            x: -109
-            y: 209
+            x: -78
+            y: 356
             z: 1
     datacenter1:
       children:
@@ -141,58 +140,104 @@ all:
             DC1R1000MS1:
               console:
                 ip: 192.168.50.101
-                port: 5011
-              ssh:
-                interface: Gi0/0
-                ip: 10.0.1.4
-                mask: 255.255.255.128
+                port: 5101
+              interfaces:
+                Gi0/0:
+                  ip: 192.168.50.130
+                  mask: 255.255.255.240
+                Gi0/1:
+                  ip: 192.168.50.144
+                  mask: 255.255.255.254
+                Gi0/2:
+                  ip: 192.168.50.146
+                  mask: 255.255.255.254
+              default_gateway:
+                ip: 192.168.50.129
               template: Cisco IOSvL2 15.2(20170321:233949)
+              symbol: :/symbols/affinity/circle/gray/router.svg
               type: mgmt-spine-switches
               position:
-                x: -144
-                y: -190
+                x: -181
+                y: -136
                 z: 1
             DC1R1000MS2:
               console:
                 ip: 192.168.50.101
-                port: 5022
-              ssh:
-                interface: Gi0/0
-                ip: 10.0.1.5
-                mask: 255.255.255.128
+                port: 5102
+              interfaces:
+                Gi0/0:
+                  ip: 192.168.50.131
+                  mask: 255.255.255.240
+                Gi0/1:
+                  ip: 192.168.50.148
+                  mask: 255.255.255.254
+                Gi0/2:
+                  ip: 192.168.50.150
+                  mask: 255.255.255.254
+              default_gateway:
+                ip: 192.168.50.129
               template: Cisco IOSvL2 15.2(20170321:233949)
+              symbol: :/symbols/affinity/circle/gray/router.svg
               type: mgmt-spine-switches
               position:
-                x: 44
-                y: -190
+                x: 114
+                y: -141
                 z: 1
             DC1R1000DS1:
               console:
                 ip: 192.168.50.101
-                port: 5013
-              ssh:
-                interface: Gi0/0
-                ip: 10.0.1.132
-                mask: 255.255.255.192
+                port: 5103
+              interfaces:
+                Gi0/0:
+                  ip: 192.168.50.147
+                  mask: 255.255.255.254
+                Gi1/0:
+                  ip: 192.168.50.176
+                  mask: 255.255.255.254
+                Gi1/1:
+                  ip: 192.168.50.178
+                  mask: 255.255.255.254
+                Gi1/2:
+                  ip: 192.168.50.184
+                  mask: 255.255.255.254
+                Gi1/3:
+                  ip: 192.168.50.186
+                  mask: 255.255.255.254
+              default_gateway:
+                ip: 192.168.50.129
               template: Cisco IOSvL2 15.2(20170321:233949)
               type: data-spine-switches
               position:
-                x: -144
-                y: -350
+                x: -176
+                y: -320
                 z: 1
             DC1R1000DS2:
               console:
                 ip: 192.168.50.101
-                port: 5014
-              ssh:
-                interface: Gi0/0
-                ip: 10.0.1.133
-                mask: 255.255.255.192
+                port: 5104
+              interfaces:
+                Gi0/0:
+                  ip: 192.168.50.149
+                  mask: 255.255.255.254
+                Gi1/0:
+                  ip: 192.168.50.180
+                  mask: 255.255.255.254
+                Gi1/1:
+                  ip: 192.168.50.182
+                  mask: 255.255.255.254
+                Gi1/2:
+                  ip: 192.168.50.188
+                  mask: 255.255.255.254
+                Gi1/3:
+                  ip: 192.168.50.190
+                  mask: 255.255.255.254
+              default_gateway:
+                ip: 192.168.50.129
               template: Cisco IOSvL2 15.2(20170321:233949)
               type: data-spine-switches
               position:
-                x: 44
-                y: -350
+                x: 117
+                y: -320
                 z: 1
         rack1001:
           vars:
@@ -209,32 +254,147 @@ all:
               console:
                 ip: 192.168.50.101
                 port: 5111
-              ssh:
-                interface: Gi0/0
-                ip: 10.0.1.134
-                mask: 255.255.255.192
+              interfaces:
+                Gi0/0:
+                  ip: 192.168.50.144
+                  mask: 255.255.255.254
+                Gi0/1:
+                  ip: 192.168.50.160
+                  mask: 255.255.255.254
+                Gi0/2:
+                  ip: 192.168.50.162
+                  mask: 255.255.255.254
+              default_gateway:
+                ip: 192.168.50.129
               template: Cisco IOSvL2 15.2(20170321:233949)
+              symbol: :/symbols/affinity/circle/gray/router.svg
               type: mgmt-leaf-switches
+              position:
+                x: -654
+                y: -587
+                z: 1
             DC1R1001DL1:
               console:
                 ip: 192.168.50.101
                 port: 5112
-              ssh:
-                interface: Gi0/0
-                ip: 10.0.1.135
-                mask: 255.255.255.192
+              interfaces:
+                Gi0/0:
+                  ip: 192.168.50.161
+                  mask: 255.255.255.254
+                Gi0/1:
+                  ip: 192.168.50.177
+                  mask: 255.255.255.254
+                Gi0/2:
+                  ip: 192.168.50.181
+                  mask: 255.255.255.254
+              default_gateway:
+                ip: 192.168.50.129
               template: Cisco IOSvL2 15.2(20170321:233949)
               type: data-leaf-switches
+              position:
+                x: -453
+                y: -738
+                z: 1
             DC1R1001DL2:
               console:
                 ip: 192.168.50.101
                 port: 5113
-              ssh:
-                interface: Gi0/0
-                ip: 10.0.1.136
-                mask: 255.255.255.192
+              interfaces:
+                Gi0/0:
+                  ip: 192.168.50.163
+                  mask: 255.255.255.254
+                Gi0/1:
+                  ip: 192.168.50.179
+                  mask: 255.255.255.254
+                Gi0/2:
+                  ip: 192.168.50.183
+                  mask: 255.255.255.254
+              default_gateway:
+                ip: 192.168.50.129
               template: Cisco IOSvL2 15.2(20170321:233949)
               type: data-leaf-switches
+              position:
+                x: -277
+                y: -738
+                z: 1
+        rack1002:
+          vars:
+            unit: businessunit2
+            node_type: qemu
+            symbol: :/symbols/multilayer_switch.svg
+            port_name_format: Gi{1}/{0}
+            properties:
+              adapter_type: e1000
+              adapters: 16
+              qemu_path: "/usr/bin/qemu-system-x86_64"
+          hosts:
+            DC1R1002ML1:
+              console:
+                ip: 192.168.50.101
+                port: 5121
+              interfaces:
+                Gi0/0:
+                  ip: 192.168.50.151
+                  mask: 255.255.255.254
+                Gi0/1:
+                  ip: 192.168.50.164
+                  mask: 255.255.255.254
+                Gi0/2:
+                  ip: 192.168.50.166
+                  mask: 255.255.255.254
+              default_gateway:
+                ip: 192.168.50.129
+              template: Cisco IOSvL2 15.2(20170321:233949)
+              symbol: :/symbols/affinity/circle/gray/router.svg
+              type: mgmt-leaf-switches
+              position:
+                x: 624
+                y: -587
+                z: 1
+            DC1R1002DL1:
+              console:
+                ip: 192.168.50.101
+                port: 5122
+              interfaces:
+                Gi0/0:
+                  ip: 192.168.50.165
+                  mask: 255.255.255.254
+                Gi0/1:
+                  ip: 192.168.50.185
+                  mask: 255.255.255.254
+                Gi0/2:
+                  ip: 192.168.50.189
+                  mask: 255.255.255.254
+              default_gateway:
+                ip: 192.168.50.129
+              template: Cisco IOSvL2 15.2(20170321:233949)
+              type: data-leaf-switches
+              position:
+                x: 219
+                y: -738
+                z: 1
+            DC1R1002DL2:
+              console:
+                ip: 192.168.50.101
+                port: 5123
+              interfaces:
+                Gi0/0:
+                  ip: 192.168.50.167
+                  mask: 255.255.255.254
+                Gi0/1:
+                  ip: 192.168.50.187
+                  mask: 255.255.255.254
+                Gi0/2:
+                  ip: 192.168.50.191
+                  mask: 255.255.255.254
+              default_gateway:
+                ip: 192.168.50.129
+              template: Cisco IOSvL2 15.2(20170321:233949)
+              type: data-leaf-switches
+              position:
+                x: 396
+                y: -738
+                z: 1
     datacenter2:
       children:
         rack2000:
@@ -251,41 +411,63 @@ all:
             DC2R2000MS1:
               console:
                 ip: 192.168.50.101
-                port: 5021
-              ssh:
-                interface: Gi0/0
-                ip: 10.0.1.6
-                mask: 255.255.255.128
+                port: 5201
+              interfaces:
+                Gi0/0:
+                  ip: 192.168.50.132
+                  mask: 255.255.255.240
+                Gi0/1:
+                  ip: 192.168.50.152
+                  mask: 255.255.255.254
+                Gi0/2:
+                  ip: 192.168.50.154
+                  mask: 255.255.255.254
+              default_gateway:
+                ip: 192.168.50.129
               template: Cisco IOSvL2 15.2(20170321:233949)
+              symbol: :/symbols/affinity/circle/gray/router.svg
               type: mgmt-spine-switches
             DC2R2000MS2:
               console:
                 ip: 192.168.50.101
-                port: 5022
-              ssh:
-                interface: Gi0/0
-                ip: 10.0.1.7
-                mask: 255.255.255.128
+                port: 5202
+              interfaces:
+                Gi0/0:
+                  ip: 192.168.50.133
+                  mask: 255.255.255.240
+                Gi0/1:
+                  ip: 192.168.50.156
+                  mask: 255.255.255.254
+                Gi0/2:
+                  ip: 192.168.50.158
+                  mask: 255.255.255.254
+              default_gateway:
+                ip: 192.168.50.129
               template: Cisco IOSvL2 15.2(20170321:233949)
+              symbol: :/symbols/affinity/circle/gray/router.svg
               type: mgmt-spine-switches
             DC2R2000DS1:
               console:
                 ip: 192.168.50.101
-                port: 5023
-              ssh:
-                interface: Gi0/0
-                ip: 10.0.1.196
-                mask: 255.255.255.192
+                port: 5203
+              interfaces:
+                Gi0/0:
+                  ip: 192.168.50.155
+                  mask: 255.255.255.254
+              default_gateway:
+                ip: 192.168.50.129
               template: Cisco IOSvL2 15.2(20170321:233949)
               type: data-spine-switches
             DC2R2000DS2:
               console:
                 ip: 192.168.50.101
-                port: 5024
-              ssh:
-                interface: Gi0/0
-                ip: 10.0.1.197
-                mask: 255.255.255.192
+                port: 5204
+              interfaces:
+                Gi0/0:
+                  ip: 192.168.50.159
+                  mask: 255.255.255.254
+              default_gateway:
+                ip: 192.168.50.129
               template: Cisco IOSvL2 15.2(20170321:233949)
               type: data-spine-switches
         rack2001:
@@ -302,30 +484,37 @@ all:
             DC2R2001ML1:
               console:
                 ip: 192.168.50.101
-                port: 5121
-              ssh:
-                interface: Gi0/0
-                ip: 10.0.1.198
-                mask: 255.255.255.192
+                port: 5211
+              interfaces:
+                Gi0/0:
+                  ip: 192.168.50.153
+                  mask: 255.255.255.254
+              default_gateway:
+                ip: 192.168.50.129
               template: Cisco IOSvL2 15.2(20170321:233949)
+              symbol: :/symbols/affinity/circle/gray/router.svg
               type: mgmt-leaf-switches
             DC2R2001DL1:
               console:
                 ip: 192.168.50.101
-                port: 5122
-              ssh:
-                interface: Gi0/0
-                ip: 10.0.1.199
-                mask: 255.255.255.192
+                port: 5212
+              interfaces:
+                Gi0/0:
+                  ip: 192.168.50.168
+                  mask: 255.255.255.254
+              default_gateway:
+                ip: 192.168.50.129
               template: Cisco IOSvL2 15.2(20170321:233949)
               type: data-leaf-switches
             DC2R2001DL2:
               console:
                 ip: 192.168.50.101
-                port: 5123
-              ssh:
-                interface: Gi0/0
-                ip: 10.0.1.200
-                mask: 255.255.255.192
+                port: 5213
+              interfaces:
+                Gi0/0:
+                  ip: 192.168.50.170
+                  mask: 255.255.255.254
+              default_gateway:
+                ip: 192.168.50.129
               template: Cisco IOSvL2 15.2(20170321:233949)
               type: data-leaf-switches

@@ -1,27 +1,304 @@
 ---
 drawings:
-- border-datacenter1:
-    rotation: 0
-    svg: "<svg height=\"296\" width=\"320\"><rect fill=\"#ffffff\" fill-opacity=\"1.0\" height=\"296\" stroke=\"#000000\" stroke-width=\"2\" width=\"318\"/></svg>"
-    x: -192
-    y: -420
-    z: 0
-- text-datacenter1:
-    rotation: 0
-    svg: "<svg height=\"24\" width=\"89\"><text fill=\"#000000\" fill-opacity=\"1.0\" font-family=\"TypeWriter\" font-size=\"10.0\" font-weight=\"bold\">datacenter1</text></svg>"
-    x: -80
-    y: -420
-    z: 2
-- text-management-network:
-    rotation: 0
-    svg: "<svg height=\"24\" width=\"126\"><text fill=\"#000000\" fill-opacity=\"1.0\" font-family=\"TypeWriter\" font-size=\"10.0\" font-weight=\"bold\">Management Network</text></svg>"
-    x: -88
-    y: 9
-    z: 2
-- text-physical-network:
-    rotation: 0
-    svg: "<svg height=\"24\" width=\"118\"><text fill=\"#000000\" fill-opacity=\"1.0\" font-family=\"TypeWriter\"font-size=\"10.0\" font-weight=\"bold\">Physical Network</text></svg>"
-    x: -76
-    y: 232
-    z: 2
+- text-subnet-cloud:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="124"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">192.168.50.96/29</text></svg>
+      x: 0
+      y: 291
+      z: 2
+- text-ip-firsthoprouter-gi0/1:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="36"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">.129</text></svg>
+      x: -1
+      y: 133
+      z: 2
+- text-ip-DC1R1000MS1-gi0/0:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="36"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">.130</text></svg>
+      x: -169
+      y: -62
+      z: 2
+- text-ip-DC1R1000MS2-gi0/0:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="36"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">.131</text></svg>
+      x: 125
+      y: -63
+      z: 2
+- text-ip-DC1R1000MS1-gi0/1:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="36"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">.146</text></svg>
+      x: -150
+      y: -178
+      z: 2
+- text-ip-DC1R1000DS1-gi0/0:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="36"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">.147</text></svg>
+      x: -150
+      y: -255
+      z: 2
+- text-ip-DC1R1000MS2-gi0/1:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="36"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">.148</text></svg>
+      x: 108
+      y: -178
+      z: 2
+- text-ip-DC1R1000DS2-gi0/0:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="36"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">.149</text></svg>
+      x: 106
+      y: -255
+      z: 2
+- text-subnet-DC1R1000MS1-gi0/2:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="132"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">192.168.50.144/31</text></svg>
+      x: -407
+      y: -219
+      z: 2
+- text-subnet-DC1R1000MS2-gi0/1:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="132"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">192.168.50.148/31</text></svg>
+      x: 8
+      y: -219
+      z: 2
+- border-dc1-rack1001:
+      locked: false
+      rotation: 0
+      svg: <svg height="294" width="585"><rect fill="#ffffff" fill-opacity="1.0" height="294" stroke="#000000" stroke-width="2" width="585" /></svg>
+      x: -758
+      y: -786
+      z: 0
+- border-dc1-rack1002:
+      locked: false
+      rotation: 0
+      svg: <svg height="294" width="629"><rect fill="#ffffff" fill-opacity="1.0" height="294" stroke="#000000" stroke-width="2" width="629" /></svg>
+      x: 172
+      y: -786
+      z: 0
+- border-dc1-rack1000:
+      locked: false
+      rotation: 0
+      svg: <svg height="294" width="629"><rect fill="#ffffff" fill-opacity="1.0" height="354" stroke="#000000" stroke-width="2" width="836" /></svg>
+      x: -412
+      y: -385
+      z: 0
+- text-dc1-rack1001:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="75"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">Rack 1001</text></svg>
+      x: -652
+      y: -776
+      z: 2
+- text-dc1-rack1002:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="75"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">Rack 1002</text></svg>
+      x: 563
+      y: -776
+      z: 2
+- text-ip-DC1R1000MS1-Gi0/2:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="36"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">.144</text></svg>
+      x: -253
+      y: -178
+      z: 2
+- text-ip-DC1R1001ML1-gi0/0:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="36"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">.145</text></svg>
+      x: -634
+      y: -513
+      z: 2
+- text-ip-DC1R1000MS2-gi0/2:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="36"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">.150</text></svg>
+      x: 210
+      y: -178
+      z: 2
+- text-ip-DC1R1002ML1-gi0/0:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="36"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">.151</text></svg>
+      x: 618
+      y: -513
+      z: 2
+- text-subnet-DC1R1001ML1-gi0/1:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="132"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">192.168.50.160/31</text></svg>
+      x: -643
+      y: -670
+      z: 2
+- text-subnet-DC1R1002ML1-gi0/2:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="132"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">192.168.50.166/31</text></svg>
+      x: 517
+      y: -670
+      z: 2
+- text-ip-DC1R1001ML1-gi0/1:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="36"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">.160</text></svg>
+      x: -627
+      y: -629
+      z: 2
+- text-subnet-DC1R1000MS1-gi0/1:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="132"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">192.168.50.146/31</text></svg>
+      x: -149
+      y: -219
+      z: 2
+- text-subnet-DC1R1000MS2-gi0/2:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="132"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">192.168.50.150/31</text></svg>
+      x: 264
+      y: -219
+      z: 2
+- text-subnet-DC1R1001ML1-gi0/2:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="132"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">192.168.50.162/31</text></svg>
+      x: -542
+      y: -602
+      z: 2
+- text-subnet-DC1R1002ML1-gi0/1:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="132"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">192.168.50.164/31</text></svg>
+      x: 428
+      y: -602
+      z: 2
+- text-ip-DC1R1001DL1-gi0/0:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="36"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">.161</text></svg>
+      x: -498
+      y: -711
+      z: 2
+- text-ip-DC1R1001ML1-gi0/2:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="36"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">.162</text></svg>
+      x: -577
+      y: -586
+      z: 2
+- text-ip-DC1R1001DL2-gi0/0:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="36"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">.163</text></svg>
+      x: -335
+      y: -711
+      z: 2
+- text-ip-DC1R1002ML1-gi0/1:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="36"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">.164</text></svg>
+      x: 559
+      y: -586
+      z: 2
+- text-ip-DC1R1002DL1-gi0/0:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="36"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">.165</text></svg>
+      x: 297
+      y: -711
+      z: 2
+- text-ip-DC1R1002ML1-gi0/2:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="36"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">.166</text></svg>
+      x: 614
+      y: -628
+      z: 2
+- text-ip-DC1R1002DL2-gi0/0:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="36"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">.167</text></svg>
+      x: 461
+      y: -711
+      z: 2
+- text-subnet-firsthoprouter-gi0/1:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="132"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">192.168.50.128/28</text></svg>
+      x: -61
+      y: 71
+      z: 2
+- text-subnet-DC1R1000DS1-gi1/0:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="132"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">192.168.50.176/31</text></svg>
+      x: -344
+      y: -434
+      z: 2
+- text-subnet-DC1R1000DS1-gi1/1:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="132"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">192.168.50.178/31</text></svg>
+      x: -242
+      y: -464
+      z: 2
+- text-subnet-DC1R1000DS2-gi1/0:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="132"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">192.168.50.180/31</text></svg>
+      x: -178
+      y: -497
+      z: 2
+- text-subnet-DC1R1000DS2-gi1/1:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="132"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">192.168.50.182/31</text></svg>
+      x: -149
+      y: -548
+      z: 2
+- text-subnet-DC1R1000DS1-gi1/2:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="132"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">192.168.50.184/31</text></svg>
+      x: -4
+      y: -548
+      z: 2
+- text-subnet-DC1R1000DS1-gi1/3:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="132"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">192.168.50.186/31</text></svg>
+      x: 42
+      y: -497
+      z: 2
+- text-subnet-DC1R1000DS2-gi1/2:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="132"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">192.168.50.188/31</text></svg>
+      x: 101
+      y: -464
+      z: 2
+- text-subnet-DC1R1000DS2-gi1/3:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="132"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">192.168.50.190/31</text></svg>
+      x: 189
+      y: -434
+      z: 2
+- text-ip-firsthoprouter-gi0/0:
+      locked: false
+      rotation: 0
+      svg: <svg height="24" width="36"><text fill="#000000" fill-opacity="1.0" font-family="TypeWriter" font-size="10.0" font-weight="bold">.102</text></svg>
+      x: 6
+      y: 250
+      z: 2
 ...

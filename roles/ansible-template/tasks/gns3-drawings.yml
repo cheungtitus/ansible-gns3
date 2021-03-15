@@ -52,7 +52,4 @@
   run_once: true
   ignore_errors: true
   tags: drawings_create
-
-- debug:
-    var: result_drawing
 ...

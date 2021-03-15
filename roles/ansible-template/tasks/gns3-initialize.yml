@@ -3,22 +3,23 @@
     msg: "Starting {{ inventory_hostname }} at {{ console['ip'] }} : {{ console['port'] | int }}"
   delegate_to: localhost
   when:
-    - inventory_hostname in lookup('inventory_hostnames', 'gns3:rack1000')
+    - inventory_hostname in lookup('inventory_hostnames', 'gns3:rack1000:rack1001:rack1002')
     - inventory_hostname != 'master'
     - inventory_hostname != 'cloud'
 
 - name: Starting nodes
   import_tasks: gns3-nodes-start.yml
-  when: inventory_hostname in lookup('inventory_hostnames', 'gns3:rack1000')
+  when: inventory_hostname in lookup('inventory_hostnames', 'gns3:rack1000:rack1001:rack1002')
   tags: import_gns3_node_start
 
 - name: Wait for nodes to start
   pause:
     minutes: "{{ project_template['start_wait_min'] }}"
 
+########################################################################################################################
 - name: Apply basic setup to all nodes
   shell: |
-    set timeout 30
+    set timeout 60
 
     spawn telnet {{ console['ip'] }} {{ console['port'] | int }}
 
@@ -70,6 +71,9 @@
     send "exit\r"
 
     expect "{{ inventory_hostname }}(config)#"
+    send "enable password {{ password_nodes }}\r"
+
+    expect "{{ inventory_hostname }}(config)#"
     send "username {{ username_nodes }} password {{ password_nodes }}\r"
 
     expect "{{ inventory_hostname }}(config)#"
@@ -88,13 +92,16 @@
     send "ip ssh version 2\r"
 
     expect "{{ inventory_hostname }}(config)#"
-    send "interface {{ ssh['interface'] }}\r"
+    send "ip route 0.0.0.0 0.0.0.0 {{ default_gateway['ip'] }}\r"
+
+    expect "{{ inventory_hostname }}(config)#"
+    send "interface {{ interfaces | dict2items | json_query('[0].key') }}\r"
 
     expect "{{ inventory_hostname }}(config-if)#"
     send "no switchport\r"
 
     expect "{{ inventory_hostname }}(config-if)#"
-    send "ip address {{ ssh['ip'] }} {{ ssh['mask'] }}\r"
+    send "ip address {{ interfaces | dict2items | json_query('[0].value.ip') }} {{ interfaces | dict2items | json_query('[0].value.mask') }}\r"
 
     expect "{{ inventory_hostname }}(config-if)#"
     send "no shutdown\r"
@@ -112,64 +119,86 @@
   changed_when: yes
   delegate_to: localhost
   when:
-    - inventory_hostname in lookup('inventory_hostnames', 'gns3:rack1000')
+    - inventory_hostname in lookup('inventory_hostnames', 'gns3:rack1000:rack1001:rack1002')
     - inventory_hostname != 'switch'
     - inventory_hostname != 'master'
     - inventory_hostname != 'cloud'
   tags: configbase
 
-- name: Set default gateway for first hop router to gateway of physical network
-  shell: |
-     set timeout 30
+########################################################################################################################
+# By now all nodes (mgmt and data) would have its first interface setup with ip address
+# What we need to do now is to setup the interfaces facing mgmt leaf or data spine switches
+# Should loop through mgmt nodes' remaining interfaces and set them up
+# Problem here however is each iteration would telnet to device once
+# Better yet is given first interface is setup we should just use the Cisco collections to setup the remaining interfaces rather than telnet
+########################################################################################################################
+#- name: Loop through interfaces per device
+#  debug:
+#    msg: "{{ inventory_hostname }} : {{ ansible_loop.index0 }} {{ interface.key }} {{ interface.value }}"
+#  loop: "{{ interfaces | dict2items }}"
+#  loop_control:
+#    loop_var: interface
+#    label: "{{ interface.key }}"
+#    pause: 1
+#    extended: yes
+#  delegate_to: localhost
+#  when:
+#    - inventory_hostname != 'switch'
+#    - inventory_hostname != 'master'
+#    - inventory_hostname != 'cloud'
 
-     spawn telnet {{ console['ip'] }} {{ console['port'] | int }}
+#- name: Loop through interfaces per device
+#    shell: |
+#       set timeout 30
+#
+#       spawn telnet {{ console['ip'] }} {{ console['port'] | int }}
+#
+#       send "\r"
+#
+#       expect "Username:"
+#       send "{{ username_nodes }}\r"
+#
+#       expect "Password:"
+#       send "{{ password_nodes }}\r"
+#
+#       expect "{{ inventory_hostname }}>"
+#       send "en\r"
+#
+#       expect "{{ inventory_hostname }}#"
+#       send "conf t\r"
+#
+#       expect "{{ inventory_hostname }}(config)#"
+#       send "interface {{ interface }}\r"
+#
+#       expect "{{ inventory_hostname }}(config-if)#"
+#       send "ip address {{ interface.value.ip }} {{ interface.value.mask }}\r"
+#
+#       expect "{{ inventory_hostname }}(config-if)#"
+#       send "end\r"
+#
+#       expect "{{ inventory_hostname }}#"
+#       send "exit\r"
+#
+#       expect "{{ inventory_hostname }}#"
+#       send "exit\r"
+#    args:
+#      executable: /usr/bin/expect
+#    changed_when: yes
+#  loop: "{{ interfaces | dict2items }}"
+#  loop_control:
+#    loop_var: interface
+#    label: "{{ interface.key }}"
+#    pause: 1
+#    extended: yes
+#  delegate_to: localhost
+#  when: >
+#    inventory_hostname == 'firsthoprouter' or
+#    (type is defined and type is regex('mgmt-spine-switches'))
 
-     send "\r"
-
-     expect "Username:"
-     send "{{ username_nodes }}\r"
-
-     expect "Password:"
-     send "{{ password_nodes }}\r"
-
-     expect "{{ inventory_hostname }}>"
-     send "en\r"
-
-     expect "{{ inventory_hostname }}#"
-     send "conf t\r"
-
-     expect "{{ inventory_hostname }}(config)#"
-     send "ip route 0.0.0.0 0.0.0.0 {{ default_gateway['ip'] }}\r"
-
-     expect "{{ inventory_hostname }}(config)#"
-     send "interface {{ internal_gateway['interface'] }}\r"
-
-     expect "{{ inventory_hostname }}(config-if)#"
-     send "no switchport\r"
-
-     expect "{{ inventory_hostname }}(config-if)#"
-     send "ip address {{ internal_gateway['ip'] }} {{ internal_gateway['mask'] }}\r"
-
-     expect "{{ inventory_hostname }}(config-if)#"
-     send "no shutdown\r"
-
-     expect "{{ inventory_hostname }}(config)#"
-     send "end\r"
-
-     expect "{{ inventory_hostname }}#"
-     send "exit\r"
-
-     expect "{{ inventory_hostname }}#"
-     send "exit\r"
-  args:
-    executable: /usr/bin/expect
-  changed_when: yes
-  delegate_to: localhost
-  when:
-    - inventory_hostname == 'firsthoprouter'
-  tags: configfirsthoprouter
-
-- name: Setup routing on first hop router and management spine
+########################################################################################################################
+# Required before we can rely on management fabric to SSH to all nodes (management & data) to set them using network modules
+########################################################################################################################
+- name: Setup routing on first hop router and management spine & leaf switches
   shell: |
     set timeout 30
 
@@ -185,6 +214,9 @@
 
     expect "{{ inventory_hostname }}>"
     send "en\r"
+
+    expect "Password:"
+    send "{{ password_nodes }}\r"
 
     expect "{{ inventory_hostname }}#"
     send "conf t\r"
@@ -212,9 +244,10 @@
   delegate_to: localhost
   when: >
     inventory_hostname == 'firsthoprouter' or
-    (type is defined and type is regex('mgmt-spine-switches'))
+    (type is defined and type is regex('mgmt-(spine|leaf)-switches'))
   tags: config_mgmt_routing
 
+########################################################################################################################
 # Management spine switches should now be reachable via SSH so can use Ansible modules
 # Interfaces facing management leaf switches and data spine switches should be created first
 #- name: Setup management spine switches

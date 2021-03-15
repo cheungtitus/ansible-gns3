@@ -7,6 +7,12 @@
   import_tasks: gns3-getnodes.yml
   tags: import_gns3_getnodes
 
+- name: Load links
+  include_vars:
+    file: links.yml
+  delegate_to: localhost
+  run_once: true
+
 # Templates are nicer and we can embed conditional logic in it to avoid the above mess of handling whether a link involves a device of ethernet_switch type
 # This isn't possible now as we need to be able to loop through tasks in separate yml file and there is a bug with Ansible.
 # https://github.com/ansible/ansible/issues/65904
@@ -48,11 +54,11 @@
     body: |
       {
         "nodes": [{
-          "adapter_number": {{ linkitem['a-end']['port'] | regex_replace('(eth|Ethernet|Gi0/)', '') | int }},
+          "adapter_number": {{ result_gns3_nodes_get | json_query('json[?name==`' + linkitem['a-end']['device'] + '`].ports[] | [?name==`' + linkitem['a-end']['port'] + '`].adapter_number') | join() | int }},
           "node_id": "{{ result_gns3_nodes_get | json_query('json[?name==`' + linkitem['a-end']['device'] + '`].node_id') | join() }}",
           "port_number": 0
         }, {
-          "adapter_number": {{ linkitem['b-end']['port'] | regex_replace('(eth|Ethernet|Gi0/)', '') | int }},
+          "adapter_number": {{ result_gns3_nodes_get | json_query('json[?name==`' + linkitem['b-end']['device'] + '`].ports[] | [?name==`' + linkitem['b-end']['port'] + '`].adapter_number') | join() | int }},
           "node_id": "{{ result_gns3_nodes_get | json_query('json[?name==`' + linkitem['b-end']['device'] + '`].node_id') | join() }}",
           "port_number": 0
         }]

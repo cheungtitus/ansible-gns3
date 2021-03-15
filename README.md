@@ -24,19 +24,32 @@ The `roles/ansible-template/tasks/initialize.yml` would apply this initial setti
 
 #### SSH via management network
 This is representative to how the network will be setup or updated normally using SSH.  Most of the settings will be project specific and is not included in this repo.
-It is important that the Ansible Controller sits physically on the same network as the ESXi server as going through additional firewall or NAT devices would cause issues for reaching to the management spines.
+It is important that the Ansible Controller sits physically on the same network as the ESXi server as going through additional firewall or NAT devices may cause issues for reaching to the management spines.
+
+###### ESXi vSwitch Setting
+:warning: Because the First Hop Router (shown on diagram below) sits behind the GNS3 eth0 interface (eth0 on diagram below), special settings need to be applied on the ESXi vSwitch and the Port Group the GNS3 VM is connected to:
+- Allow promiscuous mode: ~~No~~ Yes
+- Allow forged transmits: ~~No~~ Yes
+- Allow MAC changes: No
+
 ```<!-- language: lang-none -->
------------------------------------------------------------------------------------------------------------------------------------|
-|                                   |-------------------------------------------------------------------------------------------|  |
-|                                   |                                 !! GNS3 on ESXi or CI !!                                  |  |
-|                                   |                                                                                           |  |
-|                                   |                                    /--> Management Spine (Data Center 1) ---> Switches    |  |
-|  WSL2 / Server                    |              First       Switch   /                                                       |  |
-|   (Ansible   ----> Physical ----> | Cloud  ---->  Hop  ----> (Carrier ----> Management Spine (Data Center 2) ---> Switches    |  |
-|   Controller)      Network        | Node         Router      Network) \                                                       |  |
-|                                   |                                    \--> Management Spine (Data Center N) ---> Switches    |  |
-|                                   |-------------------------------------------------------------------------------------------|  |
------------------------------------------------------------------------------------------------------------------------------------|
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|                                   |---------------------------------------------------------------------------------------------------------------------------------------|  |
+|                                   |                                                            ESXi                                                                       |  |
+|                                   |                 |------------------------------------------------------------------------------------------------------------------|  |  |
+|                                   |                 |                                          GNS3                                                                    |  |  |    
+|                                   |                 |             |-------------------------------------------------------------------------------------------------|  |  |  |
+|                                   |                 |             |                        GNS3 Project                                                             |  |  |  |
+|                                   |                 |             |                                                                                                 |  |  |  |
+|                                   |                 |             |                                    /--> Management Spine (Data Center 1) ---> Data Spine & Leaf |  |  |  |
+|  WSL2 / Server                    |                 | eth0        |              First       Switch   /                                                             |  |  |  |
+|   (Ansible   ----> Physical ----> | vSwitch  ---->  |  on   ----> | Cloud  ---->  Hop  ----> (Carrier ----> Management Spine (Data Center 2) ---> Data Spine & Leaf |  |  |  |
+|   Controller)      Network        | (Special        | GNS3        | Node         Router      Network) \                                                             |  |  |  |
+|                                   |  Setting        |             |                                    \--> Management Spine (Data Center N) ---> Data Spine & Leaf |  |  |  |
+|                                   |  Required)      |             |-------------------------------------------------------------------------------------------------|  |  |  |
+|                                   |                 |------------------------------------------------------------------------------------------------------------------|  |  |
+|                                   |---------------------------------------------------------------------------------------------------------------------------------------|  |
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 ```
 ## Example Usage
 #### Configuration
